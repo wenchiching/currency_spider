@@ -17,7 +17,8 @@ if( !empty($q) ){
   $searchParams['type']  = 'tw';
   $searchParams['body']['query']['match']['content'] = $q;
   $retDoc = $client->search($searchParams);
-  for($i=0; $i<$retDoc['hits']['total']; $i++){
+  echo "Total result: ".$retDoc['hits']['total']."<br/>";
+  for($i=0; $i<10; $i++){
     echo var_dump($retDoc['hits']['hits'][$i]['_source']['url'])."<br/>";
   }
 }
