@@ -22,7 +22,8 @@ if( !empty($q) ){
   $total = 10;
   $total = $retDoc['hits']['total']<10?$retDoc['hits']['total']:10;
   for($i=0; $i<$total; $i++){
-    echo $retDoc['hits']['hits'][$i]['_source']['url']."<br/>\n";
+    echo $retDoc['hits']['hits'][$i]['_source']['url'];
+    echo " (".$retDoc['hits']['hits'][$i]['_score'].")<br/>\n";
     $html = str_get_html($retDoc['hits']['hits'][$i]['_source']['content']);
     $ret = $html->find('text');
     for($j=0; $j<count($ret); $j++){
