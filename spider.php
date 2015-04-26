@@ -4,7 +4,11 @@
 set_time_limit(10000);
 
 // Inculde the phpcrawl-mainclass
-include("libs/PHPCrawler.class.php");
+require_once("PHPCrawl/libs/PHPCrawler.class.php");
+// Include the elastic search lib
+require_once('vendor/autoload.php');
+
+$client = new Elasticsearch\Client();
 
 // Extend the class and override the handleDocumentInfo()-method 
 class MyCrawler extends PHPCrawler 
@@ -22,8 +26,18 @@ class MyCrawler extends PHPCrawler
     echo "Referer-page: ".$DocInfo->referer_url.$lb;
     
     // Print if the content of the document was be recieved or not
-    if ($DocInfo->received == true)
+    if ($DocInfo->received == true){
+      global $client;
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
+      $params = array();
+      $params['body']  = array('content' => iconv("big5","UTF-8",$DocInfo->content),
+              'url' => iconv("big5","UTF-8",$DocInfo->url)
+              );
+      $params['index'] = 'page';
+      $params['type']  = 'tw';
+      $ret = $client->index($params);
+      echo "indexed: ".var_dump($ret);
+    }
     else
       echo "Content not received".$lb; 
     
