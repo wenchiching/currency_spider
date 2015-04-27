@@ -7,6 +7,8 @@ set_time_limit(10000);
 require_once("PHPCrawl/libs/PHPCrawler.class.php");
 // Include the elastic search lib
 require_once('vendor/autoload.php');
+// Include DOM php lib
+require_once('simple_html_dom.php');
 
 $client = new Elasticsearch\Client();
 
@@ -30,7 +32,8 @@ class MyCrawler extends PHPCrawler
       global $client;
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $params = array();
-      $params['body']  = array('content' => iconv("big5","UTF-8",$DocInfo->content),
+      $html = str_get_html(iconv("big5","UTF-8",$DocInfo->content));
+      $params['body']  = array('content' => implode(" ", $html->find('text')),
               'url' => iconv("big5","UTF-8",$DocInfo->url)
               );
       $params['index'] = 'page';
