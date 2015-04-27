@@ -30,7 +30,7 @@ if( !empty($q) ){
   $total = 10;
   $total = $retDoc['hits']['total']<10?$retDoc['hits']['total']:10;
   for($i=0; $i<$total; $i++){
-    echo $retDoc['hits']['hits'][$i]['_source']['url'];
+    echo "<a target='blank' href='".$retDoc['hits']['hits'][$i]['_source']['url']."'>".$retDoc['hits']['hits'][$i]['_source']['url']."</a>";
     echo " (".$retDoc['hits']['hits'][$i]['_score'].")<br/>\n";
     for($j=0; $j<count($retDoc['hits']['hits'][$i]['highlight']['content']); $j++){
       echo $retDoc['hits']['hits'][$i]['highlight']['content'][$j]."<br/>\n";
