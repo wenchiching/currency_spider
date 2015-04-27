@@ -1,3 +1,9 @@
+<style type="text/css">
+em {
+background-color:#FF0000;
+}
+</style>
+
 <?php
 // Include the elastic search lib
 require_once('vendor/autoload.php');
@@ -17,21 +23,17 @@ if( !empty($q) ){
   $searchParams['index'] = 'page';
   $searchParams['type']  = 'tw';
   $searchParams['body']['query']['match']['content'] = $q;
+  $searchParams['body']['highlight']['fields']['content'] = new stdClass();
   $retDoc = $client->search($searchParams);
+
   echo "Total result: ".$retDoc['hits']['total']."<br/>";
   $total = 10;
   $total = $retDoc['hits']['total']<10?$retDoc['hits']['total']:10;
   for($i=0; $i<$total; $i++){
     echo $retDoc['hits']['hits'][$i]['_source']['url'];
     echo " (".$retDoc['hits']['hits'][$i]['_score'].")<br/>\n";
-    $html = str_get_html($retDoc['hits']['hits'][$i]['_source']['content']);
-    $ret = $html->find('text');
-    for($j=0; $j<count($ret); $j++){
-      $str = strstr($ret[$j], $q);
-      if( $str ){
-        echo $str."<br/>\n";
-      }
-      $str = NULL;
+    for($j=0; $j<count($retDoc['hits']['hits'][$i]['highlight']['content']); $j++){
+      echo $retDoc['hits']['hits'][$i]['highlight']['content'][$j]."<br/>\n";
     }
     echo "<br/>\n";
   }
