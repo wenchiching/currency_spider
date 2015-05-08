@@ -38,6 +38,7 @@ class MyCrawler extends PHPCrawler
               );
       $params['index'] = 'page';
       $params['type']  = 'tw';
+      $params['id']  = hash("md5",iconv("big5","UTF-8",$DocInfo->url));
       $ret = $client->index($params);
       echo "indexed: ".var_dump($ret);
     }
