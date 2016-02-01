@@ -32,15 +32,15 @@ class MyCrawler extends PHPCrawler
       global $client;
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $params = array();
-      $html = str_get_html(iconv("big5","UTF-8",$DocInfo->content));
+      $html = str_get_html($DocInfo->content);
       $params['body']  = array('content' => implode(" ", $html->find('text')),
               'url' => iconv("big5","UTF-8",$DocInfo->url)
               );
       $params['index'] = 'page';
       $params['type']  = 'tw';
       $params['id']  = hash("md5",iconv("big5","UTF-8",$DocInfo->url));
-      $ret = $client->index($params);
-      echo "indexed: ".var_dump($ret);
+      #$ret = $client->index($params);
+      #echo "indexed: ".var_dump($ret);
     }
     else
       echo "Content not received".$lb; 
@@ -61,7 +61,7 @@ class MyCrawler extends PHPCrawler
 $crawler = new MyCrawler();
 
 // URL to crawl
-$crawler->setURL("http://www.rclaw.com.tw/");
+$crawler->setURL("http://www.hsbc.com.tw/1/2/Misc/popup-tw/currency-calculator");
 
 // Only receive content of files with content-type "text/html"
 $crawler->addContentTypeReceiveRule("#text/html#");
