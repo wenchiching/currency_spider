@@ -5,17 +5,13 @@ set_time_limit(10000);
 
 // Inculde the phpcrawl-mainclass
 require_once("PHPCrawl/libs/PHPCrawler.class.php");
-// Include the elastic search lib
-require_once('vendor/autoload.php');
 // Include DOM php lib
 require_once('simple_html_dom.php');
 
-$client = new Elasticsearch\Client();
-
 // Extend the class and override the handleDocumentInfo()-method 
-class MyCrawler extends PHPCrawler 
+class MyCrawler extends PHPCrawler
 {
-  function handleDocumentInfo($DocInfo) 
+  function handleDocumentInfo($DocInfo)
   {
     // Just detect linebreak for output ("\n" in CLI-mode, otherwise "<br>").
     if (PHP_SAPI == "cli") $lb = "\n";
@@ -29,18 +25,17 @@ class MyCrawler extends PHPCrawler
     
     // Print if the content of the document was be recieved or not
     if ($DocInfo->received == true){
-      global $client;
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
-      $params = array();
       $html = str_get_html($DocInfo->content);
-      $params['body']  = array('content' => implode(" ", $html->find('text')),
-              'url' => iconv("big5","UTF-8",$DocInfo->url)
-              );
-      $params['index'] = 'page';
-      $params['type']  = 'tw';
-      $params['id']  = hash("md5",iconv("big5","UTF-8",$DocInfo->url));
-      #$ret = $client->index($params);
-      #echo "indexed: ".var_dump($ret);
+      foreach( $html->find('tr.hsbcTableRow03 td.ForRatesColumn02') as $e ){
+        if ( strstr($e, "header2_1") ){
+          $count = 0;
+        }
+        if ( $count < 3 ){
+          echo $e->plaintext.$lb;
+        }
+        $count++;
+      }
     }
     else
       echo "Content not received".$lb; 
@@ -51,7 +46,7 @@ class MyCrawler extends PHPCrawler
     echo $lb;
     
     flush();
-  } 
+  }
 }
 
 // Now, create a instance of your class, define the behaviour
@@ -75,6 +70,9 @@ $crawler->enableCookieHandling(true);
 // Set the traffic-limit to 1 MB (in bytes,
 // for testing we dont want to "suck" the whole site)
 $crawler->setTrafficLimit(1000 * 1024);
+
+// Only fetch entry page
+$crawler->setCrawlingDepthLimit(0);
 
 // Thats enough, now here we go
 $crawler->go();
