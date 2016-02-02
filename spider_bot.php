@@ -27,14 +27,11 @@ class MyCrawler extends PHPCrawler
     if ($DocInfo->received == true){
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $html = str_get_html($DocInfo->content);
-      foreach( $html->find('tr.hsbcTableRow03 td.ForRatesColumn02') as $e ){
-        if ( strstr($e, "header2_1") ){
-          $count = 0;
-        }
-        if ( $count < 3 ){
-          echo $e->plaintext.$lb;
-        }
-        $count++;
+      foreach( $html->find('tr.color0 td') as $e ){
+        echo $e->plaintext.$lb;
+      }
+      foreach( $html->find('tr.color1 td') as $e ){
+        echo $e->plaintext.$lb;
       }
     }
     else
@@ -56,7 +53,7 @@ class MyCrawler extends PHPCrawler
 $crawler = new MyCrawler();
 
 // URL to crawl
-$crawler->setURL("http://www.hsbc.com.tw/1/2/Misc/popup-tw/currency-calculator");
+$crawler->setURL("http://rate.bot.com.tw/Pages/Static/UIP003.zh-TW.htm");
 
 // Only receive content of files with content-type "text/html"
 $crawler->addContentTypeReceiveRule("#text/html#");
