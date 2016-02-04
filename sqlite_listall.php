@@ -3,8 +3,9 @@ require_once('sqlite_common.php');
 
 $db = new SQLite3($dbfile);
 
-$results = $db->exec('SELECT * FROM currency');
-while ($row = $results->fetchArray()) {
-    var_dump($row);
+$stmt = $db->prepare('SELECT * FROM currency');
+$results = $stmt->execute();
+while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+    print_r($row);
 }
 ?>

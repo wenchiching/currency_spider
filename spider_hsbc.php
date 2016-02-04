@@ -8,6 +8,13 @@ require_once("PHPCrawl/libs/PHPCrawler.class.php");
 // Include DOM php lib
 require_once('simple_html_dom.php');
 
+require_once('spider_common.php');
+require_once('sqlite_common.php');
+
+date_default_timezone_set('Asia/Taipei');
+$datetime = date("r");
+$db = new SQLite3($dbfile);
+
 // Extend the class and override the handleDocumentInfo()-method 
 class MyCrawler extends PHPCrawler
 {
@@ -24,6 +31,9 @@ class MyCrawler extends PHPCrawler
     echo "Referer-page: ".$DocInfo->referer_url.$lb;
     
     // Print if the content of the document was be recieved or not
+    global $datetime, $db;
+    $cash_buy = "";
+    $cash_sell = "";
     if ($DocInfo->received == true){
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $html = str_get_html($DocInfo->content);
@@ -31,19 +41,37 @@ class MyCrawler extends PHPCrawler
         if ( strstr($e, "header2_1") ){
           $count = 0;
         }
-        if ( $count < 3 ){
-          echo $e->plaintext.$lb;
+        if ( $count == 0 ){
+          $currency = extract_currency($e->plaintext);
+        }
+        elseif ( $count == 1 ){
+          // spot buy
+          $spot_buy = $e->plaintext;
+        }
+        elseif ( $count == 2 ){
+          // spot sell
+          $spot_sell = $e->plaintext;
+          $stmt = $db->prepare('INSERT INTO currency(bank, currency, spot_buy, spot_sell, cash_buy, cash_sell, datetime) VALUES (?,?,?,?,?,?,?)');
+          $stmt->bindValue(1, "HSBC");
+          $stmt->bindValue(2, $currency);
+          $stmt->bindValue(3, $spot_buy);
+          $stmt->bindValue(4, $spot_sell);
+          $stmt->bindValue(5, $cash_buy);
+          $stmt->bindValue(6, $cash_sell);
+          $stmt->bindValue(7, $datetime);
+          $ret = $stmt->execute();
+          if ( !$ret ){
+            echo $db->lastErrorMsg();
+          }
         }
         $count++;
       }
     }
     else
-      echo "Content not received".$lb; 
+      echo "Content not received".$lb;
     
     // Now you should do something with the content of the actual
     // received page or file ($DocInfo->source), we skip it in this example 
-    
-    echo $lb;
     
     flush();
   }
@@ -84,7 +112,7 @@ $report = $crawler->getProcessReport();
 if (PHP_SAPI == "cli") $lb = "\n";
 else $lb = "<br />";
     
-echo "Summary:".$lb;
+echo "Summary:(".$datetime.")".$lb;
 echo "Links followed: ".$report->links_followed.$lb;
 echo "Documents received: ".$report->files_received.$lb;
 echo "Bytes received: ".$report->bytes_received." bytes".$lb;

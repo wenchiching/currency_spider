@@ -8,6 +8,13 @@ require_once("PHPCrawl/libs/PHPCrawler.class.php");
 // Include DOM php lib
 require_once('simple_html_dom.php');
 
+require_once('spider_common.php');
+require_once('sqlite_common.php');
+
+date_default_timezone_set('Asia/Taipei');
+$datetime = date("r");
+$db = new SQLite3($dbfile);
+
 // Extend the class and override the handleDocumentInfo()-method 
 class MyCrawler extends PHPCrawler
 {
@@ -24,11 +31,27 @@ class MyCrawler extends PHPCrawler
     echo "Referer-page: ".$DocInfo->referer_url.$lb;
     
     // Print if the content of the document was be recieved or not
+    global $datetime, $db;
     if ($DocInfo->received == true){
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $html = str_get_html($DocInfo->content);
       foreach( $html->find('span.results') as $e ){
-        echo $e->plaintext.$lb;
+        $keywords = preg_split("/ /", $e->plaintext);
+        echo $keywords[5].$lb;
+        $spot_buy = $keywords[5];
+        $spot_sell = $keywords[5];
+        $stmt = $db->prepare('INSERT INTO currency(bank, currency, spot_buy, spot_sell, cash_buy, cash_sell, datetime) VALUES (?,?,?,?,?,?,?)');
+        $stmt->bindValue(1, "VISA");
+        $stmt->bindValue(2, "USD");
+        $stmt->bindValue(3, $spot_buy);
+        $stmt->bindValue(4, $spot_sell);
+        $stmt->bindValue(5, "");
+        $stmt->bindValue(6, "");
+        $stmt->bindValue(7, $datetime);
+        $ret = $stmt->execute();
+        if ( !$ret ){
+          echo $db->lastErrorMsg();
+        }
       }
     }
     else

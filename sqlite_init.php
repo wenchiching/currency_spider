@@ -8,12 +8,13 @@ if ( file_exists($dbfile) ) {
 $db = new SQLite3($dbfile);
 
 $db->exec('CREATE TABLE currency (
+            bank        TEXT,
             currency    TEXT,
             spot_buy    FLOAT,
             spot_sell   FLOAT,
             cash_buy    FLOAT,
             cash_sell   FLOAT,
-            date        TEXT
+            datetime    TEXT
             )');
 
 ?>
