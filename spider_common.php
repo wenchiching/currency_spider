@@ -13,6 +13,12 @@ function extract_currency($string){
     $SEK="SEK";
     $ZAR="ZAR";
     $CNY="CNY";
+    $THB="THB";
+    $PHP="PHP";
+    $IDR="IDR";
+    $KRW="KRW";
+    $VND="VND";
+    $MYR="MYR";
     if( stristr($string, $USD) ){
         return $USD;
     }
@@ -51,6 +57,24 @@ function extract_currency($string){
     }
     elseif( stristr($string, $CNY) ){
         return $CNY;
+    }
+    elseif( stristr($string, $THB) ){
+        return $THB;
+    }
+    elseif( stristr($string, $PHP) ){
+        return $PHP;
+    }
+    elseif( stristr($string, $IDR) ){
+        return $IDR;
+    }
+    elseif( stristr($string, $KRW) ){
+        return $KRW;
+    }
+    elseif( stristr($string, $VND) ){
+        return $VND;
+    }
+    elseif( stristr($string, $MYR) ){
+        return $MYR;
     }
 }
 ?>

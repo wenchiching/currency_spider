@@ -8,9 +8,11 @@ require_once("PHPCrawl/libs/PHPCrawler.class.php");
 // Include DOM php lib
 require_once('simple_html_dom.php');
 
-// Include php common file
+require_once('spider_common.php');
 require_once('sqlite_common.php');
 
+date_default_timezone_set('Asia/Taipei');
+$datetime = date("r");
 $db = new SQLite3($dbfile);
 
 // Extend the class and override the handleDocumentInfo()-method 
@@ -29,14 +31,84 @@ class MyCrawler extends PHPCrawler
     echo "Referer-page: ".$DocInfo->referer_url.$lb;
     
     // Print if the content of the document was be recieved or not
+    global $datetime, $db;
+    $count = 0;
+    $spot_buy = 0;
+    $spot_sell = 0;
+    $cash_buy = 0;
+    $cash_sell = 0;
     if ($DocInfo->received == true){
       echo "Content received: ".$DocInfo->bytes_received." bytes".$lb;
       $html = str_get_html($DocInfo->content);
       foreach( $html->find('tr.color0 td') as $e ){
-        echo $e->plaintext.$lb;
+        $count = $count%7;
+        if ( $count == 0 ){
+            $currency = extract_currency($e->plaintext);
+        }
+        else if ( $count == 1 ){
+            $cash_buy = $e->plaintext;
+        }
+        else if ( $count == 2 ){
+            $cash_sell = $e->plaintext;
+        }
+        else if ( $count == 3 ){
+            $spot_buy = $e->plaintext;
+        }
+        else if ( $count == 4 ){
+            $spot_sell = $e->plaintext;
+            $stmt = $db->prepare('INSERT INTO currency(bank, currency, spot_buy, spot_sell, cash_buy, cash_sell, datetime) VALUES (?,?,?,?,?,?,?)');
+            $stmt->bindValue(1, "BOT");
+            $stmt->bindValue(2, $currency);
+            $stmt->bindValue(3, $spot_buy);
+            $stmt->bindValue(4, $spot_sell);
+            $stmt->bindValue(5, $cash_buy);
+            $stmt->bindValue(6, $cash_sell);
+            $stmt->bindValue(7, $datetime);
+            $ret = $stmt->execute();
+            if ( !$ret ){
+              echo $db->lastErrorMsg();
+            }
+        }
+        else if ( $count == 5 ){
+        }
+        else if ( $count == 6 ){
+        }
+        $count++;
       }
       foreach( $html->find('tr.color1 td') as $e ){
-        echo $e->plaintext.$lb;
+        $count = $count%7;
+        if ( $count == 0 ){
+            $currency = extract_currency($e->plaintext);
+        }
+        else if ( $count == 1 ){
+            $cash_buy = $e->plaintext;
+        }
+        else if ( $count == 2 ){
+            $cash_sell = $e->plaintext;
+        }
+        else if ( $count == 3 ){
+            $spot_buy = $e->plaintext;
+        }
+        else if ( $count == 4 ){
+            $spot_sell = $e->plaintext;
+            $stmt = $db->prepare('INSERT INTO currency(bank, currency, spot_buy, spot_sell, cash_buy, cash_sell, datetime) VALUES (?,?,?,?,?,?,?)');
+            $stmt->bindValue(1, "BOT");
+            $stmt->bindValue(2, $currency);
+            $stmt->bindValue(3, $spot_buy);
+            $stmt->bindValue(4, $spot_sell);
+            $stmt->bindValue(5, $cash_buy);
+            $stmt->bindValue(6, $cash_sell);
+            $stmt->bindValue(7, $datetime);
+            $ret = $stmt->execute();
+            if ( !$ret ){
+              echo $db->lastErrorMsg();
+            }
+        }
+        else if ( $count == 5 ){
+        }
+        else if ( $count == 6 ){
+        }
+        $count++;
       }
     }
     else
@@ -44,8 +116,6 @@ class MyCrawler extends PHPCrawler
     
     // Now you should do something with the content of the actual
     // received page or file ($DocInfo->source), we skip it in this example 
-    
-    echo $lb;
     
     flush();
   }
@@ -86,9 +156,10 @@ $report = $crawler->getProcessReport();
 if (PHP_SAPI == "cli") $lb = "\n";
 else $lb = "<br />";
     
-echo "Summary:".$lb;
+echo "Summary:(".$datetime.")".$lb;
 echo "Links followed: ".$report->links_followed.$lb;
 echo "Documents received: ".$report->files_received.$lb;
 echo "Bytes received: ".$report->bytes_received." bytes".$lb;
 echo "Process runtime: ".$report->process_runtime." sec".$lb; 
+echo $lb;
 ?>

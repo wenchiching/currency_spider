@@ -60,8 +60,6 @@ class MyCrawler extends PHPCrawler
     // Now you should do something with the content of the actual
     // received page or file ($DocInfo->source), we skip it in this example 
     
-    echo $lb;
-    
     flush();
   }
 }
@@ -102,9 +100,10 @@ $report = $crawler->getProcessReport();
 if (PHP_SAPI == "cli") $lb = "\n";
 else $lb = "<br />";
     
-echo "Summary:".$lb;
+echo "Summary:(".$datetime.")".$lb;
 echo "Links followed: ".$report->links_followed.$lb;
 echo "Documents received: ".$report->files_received.$lb;
 echo "Bytes received: ".$report->bytes_received." bytes".$lb;
 echo "Process runtime: ".$report->process_runtime." sec".$lb; 
+echo $lb;
 ?>

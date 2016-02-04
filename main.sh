@@ -10,6 +10,7 @@ log_yesterday=$base_path/logs/$yesterday.log
 cd $base_path
 php spider_hsbc.php >>$log 2>&1
 php spider_visa.php >>$log 2>&1
+php spider_bot.php >>$log 2>&1
 
 if [ -e $log_yesterday ]; then
     gzip $log_yesterday
