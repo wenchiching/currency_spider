@@ -12,7 +12,7 @@ require_once('spider_common.php');
 require_once('sqlite_common.php');
 
 date_default_timezone_set('Asia/Taipei');
-$datetime = date("r");
+$datetime = date("c");
 $db = new SQLite3($dbfile);
 
 // Extend the class and override the handleDocumentInfo()-method 
