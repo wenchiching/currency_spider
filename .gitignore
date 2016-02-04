@@ -1,2 +1,2 @@
 *.swp
-sqlitedb.db
+.sqlite_db.db

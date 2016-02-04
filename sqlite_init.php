@@ -1,5 +1,5 @@
 <?php
-$dbfile='sqlitedb.db';
+require_once('sqlite_common.php');
 
 if ( file_exists($dbfile) ) {
     echo "$dbfile exist!\n";

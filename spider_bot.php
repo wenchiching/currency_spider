@@ -8,6 +8,11 @@ require_once("PHPCrawl/libs/PHPCrawler.class.php");
 // Include DOM php lib
 require_once('simple_html_dom.php');
 
+// Include php common file
+require_once('sqlite_common.php');
+
+$db = new SQLite3($dbfile);
+
 // Extend the class and override the handleDocumentInfo()-method 
 class MyCrawler extends PHPCrawler
 {
