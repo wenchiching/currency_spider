@@ -13,7 +13,7 @@ $a_datetime = array();
 $result = array();
 $last = 0;
 
-function find_arbitrage($bank, $spot_buy, $spot_sell, $datetime) {
+function find_arbitrage($bank, $spot_buy, $spot_sell, $datetime, $_rate = 0.003) {
     if ( count($bank) == 0 ){
         return 0;
     }
@@ -31,7 +31,10 @@ function find_arbitrage($bank, $spot_buy, $spot_sell, $datetime) {
     }
     if ( $visa_buy == 0 || $hsbc_sell == 0 ) {return 0;}
     if ( $visa_buy > $hsbc_sell ){
-        print("visa_buy:".$visa_buy."\thsbc_sell:".$hsbc_sell."\n");
+        $margin = $visa_buy - $hsbc_sell;
+        $rate = $margin/$visa_buy;
+        if ( $rate < $_rate ) { return 0; }
+        print("visa_buy:".$visa_buy."\thsbc_sell:".$hsbc_sell."\tmargin:".$margin."(".$margin/$visa_buy.")"."\n");
         $i = 0;
         while ( $i < count($bank) ) {
             print($bank[$i]."\t".$spot_buy[$i]."\t".$spot_sell[$i]."\t".$datetime[$i]."\n");
@@ -45,7 +48,7 @@ while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
     $datetime = strtotime($row["datetime"]);
     if ( ($last != (int)($datetime/60) ) && $last != 0 ){
         $last = (int)($datetime/60);
-        $result[] = find_arbitrage($a_bank, $a_spot_buy, $a_spot_sell, $a_datetime);
+        $result[] = find_arbitrage($a_bank, $a_spot_buy, $a_spot_sell, $a_datetime, 0.002);
         $a_bank = array();
         $a_spot_sell = array();
         $a_spot_buy = array();
@@ -57,5 +60,5 @@ while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
     $a_datetime[] = $row["datetime"];
     $last = (int)($datetime/60);
 }
-printf(max($result));
+printf(max($result)."\n");
 ?>
